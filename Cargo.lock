@@ -329,16 +329,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "graphing"
-version = "0.1.0"
-dependencies = [
- "csv",
- "plotters",
- "rustfft",
- "serde",
-]
-
-[[package]]
 name = "iana-time-zone"
 version = "0.1.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -749,6 +739,16 @@ checksum = "29790946404f91d9c5d06f9874efddea1dc06c5efe94541a7d6863108e3a5e4b"
 dependencies = [
  "same-file",
  "winapi-util",
+]
+
+[[package]]
+name = "warthunder-graphing"
+version = "0.1.0"
+dependencies = [
+ "csv",
+ "plotters",
+ "rustfft",
+ "serde",
 ]
 
 [[package]]
