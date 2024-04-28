@@ -1,25 +1,44 @@
-struct Function<F>
+pub struct FunctionIterator<F>
 where 
-    F: Fn(f32) -> f32
+    F: Fn(f64) -> f64
 {
-    closure: F
+    closure: F,
+    iterations: i32, 
+    from: f64,
+    step_size: f64, 
+    i: i32,
+}
+impl<F> FunctionIterator<F>
+where 
+    F: Fn(f64) -> f64
+{
+    pub fn new(iterations: i32, from: f64, step_size: f64, closure: F) -> Self {
+        Self { 
+            closure, 
+            iterations, 
+            from, 
+            step_size, 
+            i: 0,
+        }
+    }
 }
 
-impl<F> Function<F>
+impl<F> Iterator for FunctionIterator<F>
 where
-    F: Fn(f32) -> f32
+    F: Fn(f64) -> f64
 {
-    fn iter_range(&self, from: f32, to: f32, iterations: i32) -> std::vec::IntoIter<(f32, f32)> {
-        let step_size = (to - from) / iterations as f32;
-
-        let mut my_vec = Vec::new();
-
-        let mut x = from;
-        while x <= to {
-            my_vec.push((x, (self.closure)(x)));
-            x += step_size;
+    type Item = (f64, f64);
+    
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.i > self.iterations {
+            return None
         }
+        
+        let x = self.from + (self.step_size * self.i as f64);
 
-        my_vec.into_iter()
+        let y = (self.closure)(x);
+
+        self.i += 1;
+        Some((x, y))
     }
 }

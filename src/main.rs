@@ -2,6 +2,7 @@
 
 use best_fit::fit;
 use plotters::{prelude::*, style::full_palette::GREEN_700};
+use stuff::FunctionIterator;
 
 
 mod best_fit;
@@ -11,14 +12,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let cutoff = 0.015;
 
-    let root = BitMapBackend::new("output/sep_per_alt_2.png", (800, 500)).into_drawing_area();
+    let root = BitMapBackend::new("output/test.png", (800, 500)).into_drawing_area();
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&root)
         .caption("La-7", ("sans-serif", 30).into_font())
         .margin(5)
         .x_label_area_size(30)
         .y_label_area_size(45)
-        .build_cartesian_2d(0.0..650.0,  -5.0..30.0)?;
+        .build_cartesian_2d(-10.0..10.0,  -5.0..30.0)?;
 
     chart
         .configure_mesh()
@@ -27,12 +28,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .draw()?;
 
 
-    chart.draw_series(LineSeries::new(
-        vec![(0.0, 0.0), (1000.0, 0.0)], 
-        &full_palette::GREY_700
+    chart.draw_series(LineSeries::new(  // y=0 line
+        vec![(-1000.0, 0.0), (1000.0, 0.0)], 
+        &full_palette::GREY_800
     ))?;
 
 
+    chart.draw_series(LineSeries::new(
+        FunctionIterator::new(50, -10.0, 0.1, |x| 10.*(5.0*x).sin()), 
+        RED
+    ))?;
+
+
+    /* 
     let mut reader = csv::Reader::from_path("input/sep_per_alt.csv")?;
     let data_iter: csv::DeserializeRecordsIter<'_, std::fs::File, (f64, f64, f64, f64, f64)> = reader.deserialize();
     chart   
@@ -149,7 +157,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }).collect(), 650.0, cutoff),
             BLUE,
         ))?;
-
+    */
 
     /*
     
@@ -232,11 +240,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     */
 
 
-    chart
-        .configure_series_labels()
-        .background_style(&WHITE.mix(0.8))
-        .border_style(&BLACK)
-        .draw()?;
+    //chart
+        //.configure_series_labels()
+        //.background_style(&WHITE.mix(0.8))
+        //.border_style(&BLACK)
+        //.draw()?;
     
 
 
