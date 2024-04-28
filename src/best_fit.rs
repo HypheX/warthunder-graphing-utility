@@ -1,6 +1,7 @@
 use rustfft::{num_complex::Complex, FftPlanner};
 const FFT_SIZE: usize = 1024;
 const FFT_ROOM: usize = 256; //some headroom on either end to discard artifacts
+#[allow(dead_code)]
 
 pub fn fit(mut input: Vec<(f64, f64)>, top: f64, cutoff: f64) -> Vec<(f64, f64)> {
     //first we order the points by the X axis, so that there is no looping
@@ -72,7 +73,7 @@ pub fn fit(mut input: Vec<(f64, f64)>, top: f64, cutoff: f64) -> Vec<(f64, f64)>
 
 
 
-fn vec_interpolate(input: &Vec<(f64, f64)>, t: f64, left_slope: f64, right_slope: f64) -> f64 {
+pub fn vec_interpolate(input: &Vec<(f64, f64)>, t: f64, left_slope: f64, right_slope: f64) -> f64 {
     //find the nearest points
     let mut lower = (&0.0, &0.0);
     for (x, y) in input {

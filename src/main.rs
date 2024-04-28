@@ -1,16 +1,16 @@
 
 
-use best_fit::fit;
-use plotters::{prelude::*, style::full_palette::GREEN_700};
-use stuff::FunctionIterator;
+
+use plotters::prelude::*;
+use iterators::FunctionIterator;
 
 
 mod best_fit;
-mod stuff;
+mod iterators;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let cutoff = 0.015;
+    //let cutoff = 0.015;
 
     let root = BitMapBackend::new("output/test.png", (800, 500)).into_drawing_area();
     root.fill(&WHITE)?;
