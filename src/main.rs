@@ -15,16 +15,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let root = BitMapBackend::new("output/test.png", (800, 500)).into_drawing_area();
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&root)
-        .caption("La-7", ("sans-serif", 30).into_font())
+        //.caption("La-7", ("sans-serif", 30).into_font())
         .margin(5)
         .x_label_area_size(30)
         .y_label_area_size(45)
-        .build_cartesian_2d(-10.0..10.0,  -5.0..30.0)?;
+        .build_cartesian_2d(-6.0..6.0,  -6.0..6.0)?;
 
     chart
         .configure_mesh()
-        .x_desc("IAS, km/h")
-        .y_desc("Specific Excess Power, m/s")
+        //.x_desc("IAS, km/h")
+        //.y_desc("Specific Excess Power, m/s")
         .draw()?;
 
 
@@ -35,7 +35,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 
     chart.draw_series(LineSeries::new(
-        FunctionIterator::new(50, -10.0, 0.1, |x| 10.*(5.0*x).sin()), 
+        FunctionIterator::new(1000, -5.0, 5.0, |x| {
+                5.0*(2.0*x).sin()
+            }), 
         RED
     ))?;
 

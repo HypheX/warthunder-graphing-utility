@@ -12,12 +12,12 @@ impl<F> FunctionIterator<F>
 where 
     F: Fn(f64) -> f64
 {
-    pub fn new(iterations: i32, from: f64, step_size: f64, closure: F) -> Self {
+    pub fn new(iterations: i32, from: f64, to: f64, closure: F) -> Self {
         Self { 
             closure, 
             iterations, 
             from, 
-            step_size, 
+            step_size: (to - from) / iterations as f64, 
             i: 0,
         }
     }
