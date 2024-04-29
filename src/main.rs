@@ -7,6 +7,7 @@ use iterators::FunctionIterator;
 
 mod best_fit;
 mod iterators;
+mod graph;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 
