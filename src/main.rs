@@ -1,8 +1,8 @@
 
 
 
-use plotters::prelude::*;
-use iterators::FunctionIterator;
+use plotters::{prelude::*, style::text_anchor::Pos};
+use iterators::{FunctionIterator, LabeledFunction};
 
 
 mod best_fit;
@@ -22,11 +22,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .y_label_area_size(45)
         .build_cartesian_2d(-6.0..6.0,  -6.0..6.0)?;
 
+
+
     chart
         .configure_mesh()
         //.x_desc("IAS, km/h")
         //.y_desc("Specific Excess Power, m/s")
         .draw()?;
+
 
 
     chart.draw_series(LineSeries::new(  // y=0 line
@@ -35,12 +38,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ))?;
 
 
+
     chart.draw_series(LineSeries::new(
         FunctionIterator::new(1000, -5.0, 5.0, |x| {
                 5.0*(2.0*x).sin()
             }), 
         RED
     ))?;
+
+
+
+    chart.draw_series(LabeledFunction::new(
+        1000, 
+        -5.0, 
+        5.0, 
+        |x| x, 
+        ShapeStyle { color: BLUE.to_rgba(), filled: true, stroke_width: 1 }, 
+        -6.0, 
+        (0.0, 0.0), 
+        "label".into(), 
+        TextStyle { font: ("sans-serif", 20).into_font(), color: BLACK.to_backend_color(), pos: Pos::default() }
+    ))?;
+
 
 
     /* 

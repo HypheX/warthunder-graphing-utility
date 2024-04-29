@@ -50,14 +50,14 @@ where
 
 
 
-struct LabeledFunction<'a, F, DB>
+pub struct LabeledFunction<'a, F, DB>
 where
     F: Fn(f64) -> f64,
     DB: DrawingBackend,
 {
     function: FunctionIterator<F>,
     label_pos: (f64, f64),
-    lable_is_drawn: bool,
+    label_is_drawn: bool,
     prev_point: Option<(f64, f64)>,
     line_style: ShapeStyle,
     label_style: TextStyle<'a>,
@@ -73,7 +73,7 @@ impl<'a, F, DB> LabeledFunction<'a, F, DB>
         Self { 
             label_pos: (label_pos + label_offset.0, closure(label_pos) + label_offset.1),
             function: FunctionIterator::new(iterations, from, to, closure),
-            lable_is_drawn: false,
+            label_is_drawn: false,
             prev_point: None,
             line_style,
             label,
@@ -93,16 +93,19 @@ where
     type Item = DynElement<'a, DB, (f64, f64)>;
 
     fn next(&mut self) -> Option<Self::Item> {
+        let prev_point = self.prev_point;
         let current_point = self.function.next();
+        self.prev_point = current_point;
 
-        if let (Some(coord1), Some(coord2)) = (self.prev_point, current_point) {
+        if let (Some(coord1), Some(coord2)) = (prev_point, current_point) {
+            //dbg!((coord1, coord2));
             return Some(
                 PathElement::new(vec![coord1, coord2], self.line_style).into_dyn()
             )
         }
         
-        if !self.lable_is_drawn {
-
+        if !self.label_is_drawn {
+            self.label_is_drawn = true;
             return Some( 
                 Text::new(
                     self.label.clone(), 
@@ -110,6 +113,7 @@ where
                     self.label_style.clone()
                 ).into_dyn()
             )
+            
         }
 
         None
