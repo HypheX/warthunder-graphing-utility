@@ -90,7 +90,7 @@ where
     F: Fn(f64) -> f64,
     DB: DrawingBackend,
 {
-    type Item = DynElement<'static, DB, (f64, f64)>;
+    type Item = DynElement<'a, DB, (f64, f64)>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let current_point = self.function.next();
