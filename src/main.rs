@@ -1,278 +1,56 @@
 
 
 
-use plotters::{prelude::*, style::text_anchor::Pos};
-use iterators::{FunctionIterator, LabeledFunction};
-
 
 mod best_fit;
-mod iterators;
+//mod iterators;
 mod graph;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+use eframe::egui;
+use egui_plot::{AxisHints, HPlacement, Line, Placement, Plot, PlotPoints};
 
-    //let cutoff = 0.015;
-
-    let root = BitMapBackend::new("output/test.png", (800, 500)).into_drawing_area();
-    root.fill(&WHITE)?;
-    let mut chart = ChartBuilder::on(&root)
-        //.caption("La-7", ("sans-serif", 30).into_font())
-        .margin(5)
-        .x_label_area_size(30)
-        .y_label_area_size(45)
-        .build_cartesian_2d(-6.0..6.0,  -6.0..6.0)?;
-
-
-
-    chart
-        .configure_mesh()
-        //.x_desc("IAS, km/h")
-        //.y_desc("Specific Excess Power, m/s")
-        .draw()?;
-
-
-
-    chart.draw_series(LineSeries::new(  // y=0 line
-        vec![(-1000.0, 0.0), (1000.0, 0.0)], 
-        &full_palette::GREY_800
-    ))?;
-
-
-
-    chart.draw_series(LineSeries::new(
-        FunctionIterator::new(1000, -5.0, 5.0, |x| {
-                5.0*(2.0*x).sin()
-            }), 
-        RED
-    ))?;
-
-
-
-    chart.draw_series(LabeledFunction::new(
-        1000, 
-        -5.0, 
-        5.0, 
-        |x| x, 
-        ShapeStyle { color: BLUE.to_rgba(), filled: true, stroke_width: 1 }, 
-        -6.0, 
-        (0.0, 0.0), 
-        "label".into(), 
-        TextStyle { font: ("sans-serif", 20).into_font(), color: BLACK.to_backend_color(), pos: Pos::default() }
-    ))?;
-
-
-
-    /* 
-    let mut reader = csv::Reader::from_path("input/sep_per_alt.csv")?;
-    let data_iter: csv::DeserializeRecordsIter<'_, std::fs::File, (f64, f64, f64, f64, f64)> = reader.deserialize();
-    chart   
-        .draw_series(   //200
-            data_iter.filter_map(|point| {
-                let point = point.unwrap();
-                let (_time, ias, sep, thr, alt) = point;
-                if (thr < 110.0) | (alt < 100.0) | (alt > 300.0) {return None}
-                Some(Circle::new((ias, sep), 2, 
-                ShapeStyle {
-                    color: RED.mix(0.3),
-                    filled: true,
-                    stroke_width: 1,
-                }))
-            })
-        )?
-        .label("200m")
-        .legend(|(x, y)| Circle::new((x+10, y), 2, 
-        ShapeStyle {
-            color: RED.mix(0.8),
-            filled: true,
-            stroke_width: 1,
-        }));
-
-
-    let mut reader = csv::Reader::from_path("input/sep_per_alt.csv")?;
-    let data_iter: csv::DeserializeRecordsIter<'_, std::fs::File, (f64, f64, f64, f64, f64)> = reader.deserialize();
-    chart  
-        .draw_series(LineSeries::new(
-            fit(data_iter.filter_map(|point| {
-                let point = point.unwrap();
-                let (_time, ias, sep, thr, alt) = point;
-                if (thr < 110.0) | (alt < 100.0) | (alt > 300.0) {return None}
-                Some((ias, sep))
-            }).collect(), 650.0, cutoff),
-            RED,
-        ))?;
-
-
-
-    let mut reader = csv::Reader::from_path("input/sep_per_alt.csv")?;
-    let data_iter: csv::DeserializeRecordsIter<'_, std::fs::File, (f64, f64, f64, f64, f64)> = reader.deserialize();
-    chart   
-        .draw_series(   //2000
-            data_iter.filter_map(|point| {
-                let point = point.unwrap();
-                let (_time, ias, sep, thr, alt) = point;
-                if (thr < 110.0) | (alt < 1900.0) | (alt > 2100.0) {return None}
-                Some(Circle::new((ias, sep), 2, 
-                ShapeStyle {
-                    color: GREEN_700.mix(0.3),
-                    filled: true,
-                    stroke_width: 1,
-                }))
-            })
-        )?
-        .label("2000m")
-        .legend(|(x, y)| Circle::new((x+10, y), 2, 
-        ShapeStyle {
-            color: GREEN_700.mix(0.8),
-            filled: true,
-            stroke_width: 1,
-        }));
-
-
-    let mut reader = csv::Reader::from_path("input/sep_per_alt.csv")?;
-    let data_iter: csv::DeserializeRecordsIter<'_, std::fs::File, (f64, f64, f64, f64, f64)> = reader.deserialize();
-    chart  
-        .draw_series(LineSeries::new(
-            fit(data_iter.filter_map(|point| {
-                let point = point.unwrap();
-                let (_time, ias, sep, thr, alt) = point;
-                if (thr < 110.0) | (alt < 1900.0) | (alt > 2100.0) {return None}
-                Some((ias, sep))
-            }).collect(), 650.0, cutoff),
-            GREEN_700,
-        ))?;
-
-
-    let mut reader = csv::Reader::from_path("input/sep_per_alt.csv")?;
-    let data_iter: csv::DeserializeRecordsIter<'_, std::fs::File, (f64, f64, f64, f64, f64)> = reader.deserialize();
-    chart   
-        .draw_series(   //6000
-            data_iter.filter_map(|point| {
-                let point = point.unwrap();
-                let (_time, ias, sep, thr, alt) = point;
-                if (thr < 110.0) | (alt < 5900.0) | (alt > 6100.0) {return None}
-                Some(Circle::new((ias, sep), 2, 
-                ShapeStyle {
-                    color: BLUE.mix(0.3),
-                    filled: true,
-                    stroke_width: 1,
-                }))
-            })
-        )?
-        .label("6000m")
-        .legend(|(x, y)| Circle::new((x+10, y), 2, 
-        ShapeStyle {
-            color: BLUE.mix(0.8),
-            filled: true,
-            stroke_width: 1,
-        }));
-
-
-    let mut reader = csv::Reader::from_path("input/sep_per_alt.csv")?;
-    let data_iter: csv::DeserializeRecordsIter<'_, std::fs::File, (f64, f64, f64, f64, f64)> = reader.deserialize();
-    chart  
-        .draw_series(LineSeries::new(
-            fit(data_iter.filter_map(|point| {
-                let point = point.unwrap();
-                let (_time, ias, sep, thr, alt) = point;
-                if (thr < 110.0) | (alt < 5900.0) | (alt > 6100.0) {return None}
-                Some((ias, sep))
-            }).collect(), 650.0, cutoff),
-            BLUE,
-        ))?;
-    */
-
-    /*
-    
-     */
-
-    /* 
-    let mut reader = csv::Reader::from_path("input/sep_per_alt.csv")?;
-    let data_iter: csv::DeserializeRecordsIter<'_, std::fs::File, (f64, f64, f64, f64, f64)> = reader.deserialize();
-    chart   //200m
-        .draw_series(
-            data_iter.filter_map(|point| {
-                let point = point.unwrap();
-                let (_time, ias, sep, thr, alt) = point;
-                if (thr < 110.0) | (alt < 100.0) | (alt > 300.0) {return None}
-                Some(Circle::new((ias, sep), 2, 
-                ShapeStyle {
-                    color: RED.mix(0.5),
-                    filled: true,
-                    stroke_width: 1,
-                }))
-            })
-        )?
-        .label("200m")
-        .legend(|(x, y)| Circle::new((x+5, y), 2, 
-        ShapeStyle {
-            color: RED.mix(0.5),
-            filled: true,
-            stroke_width: 1,
-        }));
-
-    
-        let mut reader = csv::Reader::from_path("input/sep_per_alt.csv")?;
-        let data_iter: csv::DeserializeRecordsIter<'_, std::fs::File, (f64, f64, f64, f64, f64)> = reader.deserialize();
-        chart   //2000m
-        .draw_series(
-            data_iter.filter_map(|point| {
-                let point = point.unwrap();
-                let (_time, ias, sep, thr, alt) = point;
-                if (thr < 110.0) | (alt < 1900.0) | (alt > 2100.0) {return None}
-                Some(Circle::new((ias, sep), 2, 
-                ShapeStyle {
-                    color: full_palette::GREEN_700.mix(0.5),
-                    filled: true,
-                    stroke_width: 1,
-                }))
-            })
-        )?
-        .label("2000m")
-        .legend(|(x, y)| Circle::new((x+5, y), 2, 
-        ShapeStyle {
-            color: full_palette::GREEN_700.mix(0.5),
-            filled: true,
-            stroke_width: 1,
-        }));
-
-
-        let mut reader = csv::Reader::from_path("input/sep_per_alt.csv")?;
-        let data_iter: csv::DeserializeRecordsIter<'_, std::fs::File, (f64, f64, f64, f64, f64)> = reader.deserialize();
-        chart   //6000m
-        .draw_series(
-            data_iter.filter_map(|point| {
-                let point = point.unwrap();
-                let (_time, ias, sep, thr, alt) = point;
-                if (thr < 110.0) | (alt < 5900.0) | (alt > 6100.0) {return None}
-                Some(Circle::new((ias, sep), 2, 
-                ShapeStyle {
-                    color: BLUE.mix(0.5),
-                    filled: true,
-                    stroke_width: 1,
-                }))
-            })
-        )?
-        .label("6000m")
-        .legend(|(x, y)| Circle::new((x+5, y), 2, 
-        ShapeStyle {
-            color: BLUE.mix(0.5),
-            filled: true,
-            stroke_width: 1,
-        }));
-    */
-
-
-    //chart
-        //.configure_series_labels()
-        //.background_style(&WHITE.mix(0.8))
-        //.border_style(&BLACK)
-        //.draw()?;
-    
-
-
-    root.present()?;
-
-    Ok(())
+fn main() {
+    let native_options = eframe::NativeOptions::default();
+    eframe::run_native("Warthunder EM Graph", native_options, Box::new(|cc| Box::new(MyEguiApp::new(cc)))).unwrap();
 }
 
+#[derive(Default)]
+struct MyEguiApp {}
 
+impl MyEguiApp {
+    fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        // Customize egui here with cc.egui_ctx.set_fonts and cc.egui_ctx.set_visuals.
+        // Restore app state using cc.storage (requires the "persistence" feature).
+        // Use the cc.gl (a glow::Context) to create graphics shaders and buffers that you can use
+        // for e.g. egui::PaintCallback.
+        Self::default()
+    }
+}
+
+impl eframe::App for MyEguiApp {
+    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        
+        let sin: PlotPoints = (0..1000).map(|i| {
+            let x = i as f64 * 0.01;
+            [x, x.sin()]
+        }).collect();
+        let line = Line::new(sin);
+
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.vertical_centered_justified(|ui| {
+                ui.heading("La-7");
+            });
+            Plot::new("my_plot")
+                /*.view_aspect(2.0)*/
+                .custom_x_axes(vec![
+                    AxisHints::new_x().label("IAS [km/h]"),
+                ])
+                .custom_y_axes(vec![
+                    AxisHints::new_y().label("Turn Rate [deg/s]"),
+                ])
+                .show(ui, |plot_ui| plot_ui.line(line));
+        });
+
+        
+    }
+}
